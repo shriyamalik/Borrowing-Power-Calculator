@@ -116,6 +116,47 @@ describe('Borrowing Power Calculator Tests', () => {
     );
   });
 
+  //test 5 : calculateBorrowingPower returns correct borrowing power and monthly repayment configuration
+  it('should calculate borrowing power for values provided', async () => {
+    calculator.getTax = async () => 24000;
+    calculator.getHEM = async () => 3100;
+
+    const result = await calculator.calculateBorrowingPower(
+      120000,
+      2,
+      3000,
+      10000,
+      10
+    );
+
+    assert.ok(
+      result.maxLoanAmount > 0,
+      'Should yield a positive borrowing power amount'
+    );
+
+    assert.strictEqual(
+      result.monthlyRepayment,
+      4600
+    );
+  });
+
+  //test 6: value returned is zero when capcity to repay is not enough
+  it('should return zero borrowing power when repayment capacity is not positive', async () => {
+    calculator.getTax = async () => 5000;
+    calculator.getHEM = async () => 4000;
+
+    const result = await calculator.calculateBorrowingPower(
+      30000,
+      3,
+      4000,
+      5000,
+      10
+    );
+
+    assert.strictEqual(result.maxLoanAmount, 0);
+    assert.strictEqual(result.monthlyRepayment, 0);
+  });
+
 });
 
 
@@ -156,5 +197,15 @@ arrange- let requestedUrl;
 Act- await calculator.getHEM(120000, 2);
 Assert- requestedUrl should be 'http://localhost:3000/api/hem?income=120000&dependents=2'
 authentication header should be 'Bearer test-token'
+
+Test 5: this test us used to check if our code is calculating the borrowing power correctly for the values provided
+
+arrange- calculator.getTax = async () => 24000;
+        calculator.getHEM = async () => 3100;
+Act- const result = await calculator.calculateBorrowingPower
+assert- result.maxLoanAmount > 0,
+        result.monthlyRepayment should be 4600
+
+Test 6: this test check for the case where income is low and borrowing power is zero. the borrowing power calcultor has a return value zero in this case and we want to make sure that behaviour is correctly implemented.
 
 */
