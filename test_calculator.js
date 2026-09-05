@@ -67,7 +67,21 @@ describe('Borrowing Power Calculator Tests', () => {
   });
 
   //test 3 : correct HEM value returned for a given income and dependents
-  
+  it('should return correct HEM for given income and dependents', async () => {
+    global.fetch = async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        income: 120000,
+        dependents: 2,
+        hem: 3100
+      })
+    });
+
+    const hem = await calculator.getHEM(120000, 2);
+
+    assert.strictEqual(hem, 3100);
+  });
 });
 
 //changes we have made
