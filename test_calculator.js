@@ -7,7 +7,7 @@ const assert = require('assert');
 //change 1
 const { BorrowingPowerCalculator } = require('./borrowingCalculator');
 
-const TEST_BASE_URL = 'https://localhost:3000';
+const TEST_BASE_URL = 'http://localhost:3000';
 const TEST_API_TOKEN = 'test-token';
 
 describe('Borrowing Power Calculator Tests', () => {
@@ -19,7 +19,7 @@ describe('Borrowing Power Calculator Tests', () => {
     );
   });
 
-  // change 2
+  // Test 1 : correct tax value returned for a given income
   it('should return correct tax for a given income', async () => {
     global.fetch = async () => ({
       ok: true,
@@ -34,7 +34,40 @@ describe('Borrowing Power Calculator Tests', () => {
     assert.strictEqual(tax, 24000);
   });
 
+  // Test 2 : correct request sent for getTax
+  it('should send the correct request to the tax API', async () => {
+    let requestedUrl;
+    let requestedOptions;
 
+    global.fetch = async (url, options) => {
+      requestedUrl = url;
+      requestedOptions = options;
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          income: 120000,
+          tax: 24000
+        })
+      };
+    };
+
+    await calculator.getTax(120000);
+
+    assert.strictEqual(
+      requestedUrl,
+      'http://localhost:3000/api/tax?income=120000'
+    );
+
+    assert.strictEqual(
+      requestedOptions.headers.Authorization,
+      'Bearer test-token'
+    );
+  });
+
+  //test 3 : correct HEM value returned for a given income and dependents
+  
 });
 
 //changes we have made
@@ -55,6 +88,11 @@ act - behaviour being tested- getTax returns the correct tax value for a given i
 assert- result that should be true- tax value returned is 24000
 
 Test 2:
-the 2nd important test is checking if correct request is being sent
+the 2nd important test is checking if correct request is being sent for getTax
+Arrange- let requestedUrl;
+        let requestedOptions;
+Act- await calculator.getTax(120000);
+Assert- requestedUrl should be 'http://localhost:3000/api/tax?income=120000'
+authentication header should be 'Bearer test-token
 
 */

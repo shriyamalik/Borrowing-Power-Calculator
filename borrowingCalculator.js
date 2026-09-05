@@ -28,7 +28,7 @@ class BorrowingPowerCalculator {
     // code to fetch tax amount from the API
     async getTax(income) {
         // Fetch amount
-        const response = await fetch(`${this.baseUrl}/tax?income=${income}`, {
+        const response = await fetch(`${this.baseUrl}/api/tax?income=${income}`, {
             headers: { 'Authorization': `Bearer ${this.token}` }
         });
         //error check
