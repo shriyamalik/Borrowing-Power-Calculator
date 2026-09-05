@@ -1,4 +1,8 @@
-const readline = require('readline'); // readline was moved out of the function to the top of the file to avoid avoide redeclaring multiple times
+/**
+ * Command-line interface for the Borrowing Power Calculator
+ */
+
+const readline = require('readline'); 
 
 const {
     BorrowingPowerCalculator
@@ -23,16 +27,12 @@ function runConsoleMode() {
         rl.question("Number of Dependents: ", (dependents) => {
             rl.question("Declared Monthly Expenses: $", (expenses) => {
                 rl.question("Total Credit Card Limits: $", (creditLimits) => {
-
-                    // Change #6
-                    //Performing the borrowing power calculation using the new class 
                     calculator.calculateBorrowingPower(
                         parseFloat(income),
                         parseInt(dependents),
                         parseFloat(expenses),
                         parseFloat(creditLimits)
                     )
-                        // change #7
                         .then(result => {
 
                             console.log("\n--- Calculation Summary ---");
@@ -41,7 +41,7 @@ function runConsoleMode() {
 
                             rl.close();
                         })
-                        // throw error if calculation fails
+                        // Display API or calculation errors to the user
                         .catch(error => {
                             console.error("Error calculating borrowing power:", error.message);
                             rl.close();
@@ -53,17 +53,3 @@ function runConsoleMode() {
 }
 
 runConsoleMode();
-
-/*
-Change 1
-This is where i tried to implement seperation of concerns 
-i wanted to make the logic and user interface to be seperate to make sure the code is more maintainable and testable 
-hence the new file by the name of intex.js for the user interaction
-
-Change 2
-I felt the seperation of concerns wansnt done well enough since some of the business/evaluation logic was being done in index.js
-
-I felt, calculating the assessment rate(interest rate + assessment rate buffer) would better fit in borrowing Calculator so that is what I implemented next
-
-I moved the calculation to the borrowing Calculator. One thing that showed up as a problem was that index.js no longer knew the interest rate that was being implemented. So, the 
-*/

@@ -4,7 +4,6 @@
 
 const assert = require('assert');
 
-//change 1
 const { BorrowingPowerCalculator } = require('./borrowingCalculator');
 
 const TEST_BASE_URL = 'http://localhost:3000';
@@ -12,14 +11,24 @@ const TEST_API_TOKEN = 'test-token';
 
 describe('Borrowing Power Calculator Tests', () => {
   let calculator;
+  let originalFetch;
+
   beforeEach(() => {
     calculator = new BorrowingPowerCalculator(
       TEST_BASE_URL,
       TEST_API_TOKEN
     );
+
+    originalFetch = global.fetch;
   });
 
-  // Test 1 : correct tax value returned for a given income
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  // Tax API tests
+
+  // Test 1
   it('should return correct tax for a given income', async () => {
     global.fetch = async () => ({
       ok: true,
@@ -30,11 +39,10 @@ describe('Borrowing Power Calculator Tests', () => {
       })
     })
     const tax = await calculator.getTax(120000);
-    // test 1 correct tax value returned
     assert.strictEqual(tax, 24000);
   });
 
-  // Test 2 : correct request sent for getTax
+  // Test 2
   it('should send the correct request to the tax API', async () => {
     let requestedUrl;
     let requestedOptions;
@@ -66,7 +74,7 @@ describe('Borrowing Power Calculator Tests', () => {
     );
   });
 
-  //test 3 : correct HEM value returned for a given income and dependents
+  //test 3
   it('should return correct HEM for given income and dependents', async () => {
     global.fetch = async () => ({
       ok: true,
@@ -83,7 +91,7 @@ describe('Borrowing Power Calculator Tests', () => {
     assert.strictEqual(hem, 3100);
   });
 
-  //test 4 : correct request sent for getHEM
+  //test 4
   it('should send the correct request to the HEM API', async () => {
     let requestedUrl;
     let requestedOptions;
@@ -116,7 +124,7 @@ describe('Borrowing Power Calculator Tests', () => {
     );
   });
 
-  //test 5 : calculateBorrowingPower returns correct borrowing power and monthly repayment configuration
+  //test 5
   it('should calculate borrowing power for values provided', async () => {
     calculator.getTax = async () => 24000;
     calculator.getHEM = async () => 3100;
@@ -139,7 +147,7 @@ describe('Borrowing Power Calculator Tests', () => {
     );
   });
 
-  //test 6: value returned is zero when capcity to repay is not enough
+  //test 6
   it('should return zero borrowing power when repayment capacity is not positive', async () => {
     calculator.getTax = async () => 5000;
     calculator.getHEM = async () => 4000;
@@ -153,9 +161,10 @@ describe('Borrowing Power Calculator Tests', () => {
 
     assert.strictEqual(result.maxLoanAmount, 0);
     assert.strictEqual(result.monthlyRepayment, 0);
+    assert.strictEqual(result.interestRate, 7);
   });
 
-  //test 7: Test 7 : if api returns unsuccessful response, getTax() should throw an error
+  //test 7
   it('should throw an error when the tax API request fails', async () => {
     global.fetch = async () => ({
       ok: false,
@@ -180,56 +189,3 @@ describe('Borrowing Power Calculator Tests', () => {
   });
 
 });
-
-
-//changes we have made
-
-/*
-1. updated the import calculateBorrowingPower with the new class BorrowingPowerCalculator
-2. added the test api
-
-Our code responsibilities changed here previously the code was just tesing for 2 outcomes normal result and zero borrowing result
-now becuase we have API values coming for tax and HEM, the responsibilities we have to cover have expanded.
-I wanted to make sure the tax api is working correctly and HEM api is working well
-
-Test 1:
-so the main thing i wanted to evaluate is if the getTax recieves an income does it return the correct tac value
-this is where i built the first case - 
-arrange- income 120000  & tax= 24000
-act - behaviour being tested- getTax returns the correct tax value for a given income
-assert- result that should be true- tax value returned is 24000
-
-Test 2:
-the 2nd important test is checking if correct request is being sent for getTax
-Arrange- let requestedUrl;
-        let requestedOptions;
-Act- await calculator.getTax(120000);
-Assert- requestedUrl should be 'http://localhost:3000/api/tax?income=120000'
-authentication header should be 'Bearer test-token
-
-Test 3:
-the 3rd important test is checking if correct HEM value is returned for a given income and dependents
-Arrange- income 120000, dependents 2, hem=3100
-Act- await calculator.getHEM(120000, 2);
-Assert- hem value returned is 3100
-
-Test 4: is correct HEM request being sent
-arrange- let requestedUrl;
-        let requestedOptions;
-Act- await calculator.getHEM(120000, 2);
-Assert- requestedUrl should be 'http://localhost:3000/api/hem?income=120000&dependents=2'
-authentication header should be 'Bearer test-token'
-
-Test 5: this test us used to check if our code is calculating the borrowing power correctly for the values provided
-
-arrange- calculator.getTax = async () => 24000;
-        calculator.getHEM = async () => 3100;
-Act- const result = await calculator.calculateBorrowingPower
-assert- result.maxLoanAmount > 0,
-        result.monthlyRepayment should be 4600
-
-Test 6: this test check for the case where income is low and borrowing power is zero. the borrowing power calcultor has a return value zero in this case and we want to make sure that behaviour is correctly implemented.
-
-Test 7: this test is used to check if the api returns unsuccessful response, getTax() should throw an error. Similary for getHEM()
-
-*/

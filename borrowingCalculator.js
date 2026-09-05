@@ -1,15 +1,11 @@
 /**
  * Borrowing Power Calculator
- * 
- * Gen's incomplete prototype. 
- * This currently calculates what a user can borrow over 30 years.
- * Currently this code uses placeholder methods for Tax and HEM values. 
- * 
- * TODO: Refactor the code to pull Tax and HEM values from an API call.
- * A server.js has been provided to supply these values.
+ *
+ * Calculates a user's borrowing power over a 30-year loan term.
+ * Tax and HEM values are retrieved from the provided development API.
  */
 
-// Global constant for mortgage simulation
+// Borrowing assumptions used by the simplified calculator
 const LOAN_TERM_MONTHS = 360; // 30 Years
 const INTEREST_RATE = 7.0; // 7.0% baseline interest rate
 const ASSESSMENT_RATE_BUFFER = 3.0; // 3.0% buffer added to interest rates
@@ -21,41 +17,37 @@ class BorrowingPowerCalculator {
         this.token = token;
     }
 
-    // code to fetch tax amount from the API
+    // fetch tax amount from the API
     async getTax(income) {
-        // Fetch amount
         const response = await fetch(`${this.baseUrl}/api/tax?income=${income}`, {
             headers: { 'Authorization': `Bearer ${this.token}` }
         });
-        //error check
+        // Stop the calculation if the API response is unsuccessful
         if (!response.ok) {
             throw new Error(`Failed to fetch tax: ${response.status}`);
         }
-        // return tax amount
         const data = await response.json();
         return data.tax;
     }
 
+    // Retrieve the monthly HEM baseline for the given income and dependents
     async getHEM(income, dependents) {
-        // Fetch amount
         const response = await fetch(
             `${this.baseUrl}/api/hem?income=${income}&dependents=${dependents}`,
             {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             }
         );
-        //error check
         if (!response.ok) {
-            // return message if API call fails
             throw new Error(`Failed to fetch HEM: ${response.status}`);
         }
-        // return HEM amount
+
         const data = await response.json();
         return data.hem;
     }
 
-    /**
-     * Calculates the total borrowing power amount and the monthly repayment configuration
+        /**
+     * Calculates maximum borrowing power and monthly repayment capacity.
      */
     async calculateBorrowingPower(income, dependents, expenses, creditLimits) {
         // 1. Calculate Net Monthly Income after tax deductions
@@ -74,16 +66,16 @@ class BorrowingPowerCalculator {
 
         // Return early if user cannot afford a loan at all
         if (maxMonthlyRepayment <= 0) {
-            return { maxLoanAmount: 0, monthlyRepayment: 0 };
+            return { maxLoanAmount: 0, monthlyRepayment: 0, interestRate: INTEREST_RATE};
         }
 
-        // Banks assess loans using base rate + buffer for safety
+        // 5. Apply the base interest rate plus the assessment buffer
         const annualAssessmentRate = INTEREST_RATE + ASSESSMENT_RATE_BUFFER;
 
-        // 5. Calculate the monthly interest rate
+        // 6. Calculate the monthly interest rate
         const monthlyRate = (annualAssessmentRate / 100) / 12;
 
-        // 6. Calculate maximum borrowing power using the following formula:
+        // 7. Calculate maximum borrowing power using the following formula:
         // P = M * (1 - (1 + R)^-N) / R
         const maxLoanAmount = maxMonthlyRepayment * ((1 - Math.pow(1 + monthlyRate, - LOAN_TERM_MONTHS)) / monthlyRate);
 
@@ -97,29 +89,3 @@ class BorrowingPowerCalculator {
 }
 
 module.exports = { BorrowingPowerCalculator };
-
-/*
-// Notes on changes being made
-
-1. we have made a new class called BorrowingPowerCalculator that contains the functions to calculate taxm HEM and borrrowing power. this is because we want better formatting ans structure to the code
-
-2. we made a constructor for the class to take url and token. this allows us to make api calls to the server.js
-
-3. the getTax() and getHEM() functions have been refactored to allow for API calls to fetch the Tax and HEM values instead of using the placeholder values.
-
-4. calculateBorrowingPower() was mde to be an async function to wait for api calls to complete before proceeding with the calacultions.
-
-5. All the borrowing logic was kept the same 
-
-6. runConsoleMode() was kept the same, but now it will use the new BorrowingPowerCalculator class to perform the calculations.
-
-7. we make the use of .then() because the rl.question is not an async function, so await can not be used inside it. we can use '.then()' to handle the promise returned by the async function and then calculate the result once the promise has been resolved. i could have async but it would have changed the ret of the code structure. so for this section i kept is .then() rather than async 
-
---------------------------
-
-We did seperation of concerns 
-So we moved a lot of the user interaction code to index.js
-this meant some of the code had to be restructured
-we added the assessment rate calculation to calculateBorrowingPower rather than it being calculated in RunConsoleMode.
-this meant we also had to send the interest rate applied to the code so we added INTEREST_RATE to the values returned
-*/
