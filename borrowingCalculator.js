@@ -43,7 +43,7 @@ class BorrowingPowerCalculator {
     async getHEM(income, dependents) {
         // Fetch amount
         const response = await fetch(
-            `${this.baseUrl}/hem?income=${income}&dependents=${dependents}`,
+            `${this.baseUrl}/api/hem?income=${income}&dependents=${dependents}`,
             {
                 headers: { 'Authorization': `Bearer ${this.token}` }
             }

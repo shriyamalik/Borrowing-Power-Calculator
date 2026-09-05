@@ -82,7 +82,42 @@ describe('Borrowing Power Calculator Tests', () => {
 
     assert.strictEqual(hem, 3100);
   });
+
+  //test 4 : correct request sent for getHEM
+  it('should send the correct request to the HEM API', async () => {
+    let requestedUrl;
+    let requestedOptions;
+
+    global.fetch = async (url, options) => {
+      requestedUrl = url;
+      requestedOptions = options;
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          income: 120000,
+          dependents: 2,
+          hem: 3100
+        })
+      };
+    };
+
+    await calculator.getHEM(120000, 2);
+
+    assert.strictEqual(
+      requestedUrl,
+      'http://localhost:3000/api/hem?income=120000&dependents=2'
+    );
+
+    assert.strictEqual(
+      requestedOptions.headers.Authorization,
+      'Bearer test-token'
+    );
+  });
+
 });
+
 
 //changes we have made
 
@@ -108,5 +143,18 @@ Arrange- let requestedUrl;
 Act- await calculator.getTax(120000);
 Assert- requestedUrl should be 'http://localhost:3000/api/tax?income=120000'
 authentication header should be 'Bearer test-token
+
+Test 3:
+the 3rd important test is checking if correct HEM value is returned for a given income and dependents
+Arrange- income 120000, dependents 2, hem=3100
+Act- await calculator.getHEM(120000, 2);
+Assert- hem value returned is 3100
+
+Test 4: is correct HEM request being sent
+arrange- let requestedUrl;
+        let requestedOptions;
+Act- await calculator.getHEM(120000, 2);
+Assert- requestedUrl should be 'http://localhost:3000/api/hem?income=120000&dependents=2'
+authentication header should be 'Bearer test-token'
 
 */
