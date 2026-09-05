@@ -234,6 +234,4 @@ Test 6: this test check for the case where income is low and borrowing power is 
 
 Test 7: this test is used to check if the api returns unsuccessful response, getTax() should throw an error. Similary for getHEM()
 
-
-
 */

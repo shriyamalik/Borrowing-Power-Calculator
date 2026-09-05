@@ -15,8 +15,8 @@ const INTEREST_RATE = 7.0; // 7.0% baseline interest rate
 const ASSESSMENT_RATE_BUFFER = 3.0; // 3.0% buffer added to interest rates
 
 // API configuration and authentication token
-const API_BASE_URL = 'http://localhost:3000';
-const API_TOKEN = 'pat_abcdefghijklmnopqrstuvwxyz0123456789';
+// const API_BASE_URL = 'http://localhost:3000';
+// const API_TOKEN = 'pat_abcdefghijklmnopqrstuvwxyz0123456789';
 
 class BorrowingPowerCalculator {
 
@@ -96,56 +96,56 @@ class BorrowingPowerCalculator {
 
 }
 
-const calculator = new BorrowingPowerCalculator(API_BASE_URL, API_TOKEN);
+// const calculator = new BorrowingPowerCalculator(API_BASE_URL, API_TOKEN);
 
 
-function runConsoleMode() {
-    const readline = require('readline');
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+// function runConsoleMode() {
+//     const readline = require('readline');
+//     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-    console.log("Mortgage Borrowing Power Calculator");
-    console.log("===================================");
+//     console.log("Mortgage Borrowing Power Calculator");
+//     console.log("===================================");
 
-    rl.question("Gross Annual Income: $", (income) => {
-        rl.question("Number of Dependents: ", (dependents) => {
-            rl.question("Declared Monthly Expenses: $", (expenses) => {
-                rl.question("Total Credit Card Limits: $", (creditLimits) => {
+//     rl.question("Gross Annual Income: $", (income) => {
+//         rl.question("Number of Dependents: ", (dependents) => {
+//             rl.question("Declared Monthly Expenses: $", (expenses) => {
+//                 rl.question("Total Credit Card Limits: $", (creditLimits) => {
 
-                    // Banks assess loans using base rate + buffer for safety
-                    const assessmentRate = INTEREST_RATE + ASSESSMENT_RATE_BUFFER;
+//                     // Banks assess loans using base rate + buffer for safety
+//                     const assessmentRate = INTEREST_RATE + ASSESSMENT_RATE_BUFFER;
 
-                    // Change #6
-                    //Performing the borrowing power calculation using the new class 
-                    calculator.calculateBorrowingPower(
-                        parseFloat(income),
-                        parseInt(dependents),
-                        parseFloat(expenses),
-                        parseFloat(creditLimits),
-                        assessmentRate
-                    )
-                        // change #7
-                        .then(result => {
+//                     // Change #6
+//                     //Performing the borrowing power calculation using the new class 
+//                     calculator.calculateBorrowingPower(
+//                         parseFloat(income),
+//                         parseInt(dependents),
+//                         parseFloat(expenses),
+//                         parseFloat(creditLimits),
+//                         assessmentRate
+//                     )
+//                         // change #7
+//                         .then(result => {
 
-                            console.log("\n--- Calculation Summary ---");
-                            console.log(`Maximum Borrowing Power at ${INTEREST_RATE}%: $${result.maxLoanAmount.toLocaleString()}`);
-                            console.log(`Assumed Monthly Mortgage Repayment: $${result.monthlyRepayment.toLocaleString()} over 30 years`);
+//                             console.log("\n--- Calculation Summary ---");
+//                             console.log(`Maximum Borrowing Power at ${INTEREST_RATE}%: $${result.maxLoanAmount.toLocaleString()}`);
+//                             console.log(`Assumed Monthly Mortgage Repayment: $${result.monthlyRepayment.toLocaleString()} over 30 years`);
 
-                            rl.close();
-                        })
-                        // throw error if calculation fails
-                        .catch(error => {
-                            console.error("Error calculating borrowing power:", error.message);
-                            rl.close();
-                        });
-                });
-            });
-        });
-    });
-}
+//                             rl.close();
+//                         })
+//                         // throw error if calculation fails
+//                         .catch(error => {
+//                             console.error("Error calculating borrowing power:", error.message);
+//                             rl.close();
+//                         });
+//                 });
+//             });
+//         });
+//     });
+// }
 
-if (require.main === module) {
-    runConsoleMode();
-}
+// if (require.main === module) {
+//     runConsoleMode();
+// }
 
 module.exports = { BorrowingPowerCalculator };
 
