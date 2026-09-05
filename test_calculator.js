@@ -157,6 +157,30 @@ describe('Borrowing Power Calculator Tests', () => {
     assert.strictEqual(result.monthlyRepayment, 0);
   });
 
+  //test 7: Test 7 : if api returns unsuccessful response, getTax() should throw an error
+  it('should throw an error when the tax API request fails', async () => {
+    global.fetch = async () => ({
+      ok: false,
+      status: 401
+    });
+
+    await assert.rejects(
+      () => calculator.getTax(120000),
+      /Failed to fetch tax: 401/
+    );
+  });
+  it('should throw an error when the HEM API request fails', async () => {
+    global.fetch = async () => ({
+      ok: false,
+      status: 400
+    });
+
+    await assert.rejects(
+      () => calculator.getHEM(120000, 2),
+      /Failed to fetch HEM: 400/
+    );
+  });
+
 });
 
 
@@ -207,5 +231,9 @@ assert- result.maxLoanAmount > 0,
         result.monthlyRepayment should be 4600
 
 Test 6: this test check for the case where income is low and borrowing power is zero. the borrowing power calcultor has a return value zero in this case and we want to make sure that behaviour is correctly implemented.
+
+Test 7: this test is used to check if the api returns unsuccessful response, getTax() should throw an error. Similary for getHEM()
+
+
 
 */
