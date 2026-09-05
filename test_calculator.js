@@ -125,8 +125,7 @@ describe('Borrowing Power Calculator Tests', () => {
       120000,
       2,
       3000,
-      10000,
-      10
+      10000
     );
 
     assert.ok(
@@ -149,8 +148,7 @@ describe('Borrowing Power Calculator Tests', () => {
       30000,
       3,
       4000,
-      5000,
-      10
+      5000
     );
 
     assert.strictEqual(result.maxLoanAmount, 0);

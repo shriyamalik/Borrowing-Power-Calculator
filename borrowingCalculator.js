@@ -61,7 +61,7 @@ class BorrowingPowerCalculator {
     /**
      * Calculates the total borrowing power amount and the monthly repayment configuration
      */
-    async calculateBorrowingPower(income, dependents, expenses, creditLimits, annualAssessmentRate) {
+    async calculateBorrowingPower(income, dependents, expenses, creditLimits) {
         // 1. Calculate Net Monthly Income after tax deductions
         const annualTax = await this.getTax(income);
         const netMonthlyIncome = (income - annualTax) / 12;
@@ -81,6 +81,9 @@ class BorrowingPowerCalculator {
             return { maxLoanAmount: 0, monthlyRepayment: 0 };
         }
 
+        // Banks assess loans using base rate + buffer for safety
+        const annualAssessmentRate = INTEREST_RATE + ASSESSMENT_RATE_BUFFER;
+
         // 5. Calculate the monthly interest rate
         const monthlyRate = (annualAssessmentRate / 100) / 12;
 
@@ -90,7 +93,8 @@ class BorrowingPowerCalculator {
 
         return {
             maxLoanAmount: Number(maxLoanAmount.toFixed(2)),
-            monthlyRepayment: Number(maxMonthlyRepayment.toFixed(2))
+            monthlyRepayment: Number(maxMonthlyRepayment.toFixed(2)),
+            interestRate: INTEREST_RATE
         };
     }
 
@@ -165,4 +169,12 @@ module.exports = { BorrowingPowerCalculator };
 6. runConsoleMode() was kept the same, but now it will use the new BorrowingPowerCalculator class to perform the calculations.
 
 7. we make the use of .then() because the rl.question is not an async function, so await can not be used inside it. we can use '.then()' to handle the promise returned by the async function and then calculate the result once the promise has been resolved. i could have async but it would have changed the ret of the code structure. so for this section i kept is .then() rather than async 
+
+--------------------------
+
+We did seperation of concerns 
+So we moved a lot of the user interaction code to index.js
+this meant some of the code had to be restructured
+we added the assessment rate calculation to calculateBorrowingPower rather than it being calculated in RunConsoleMode.
+this meant we also had to send the interest rate applied to the code so we added INTEREST_RATE to the values returned
 */

@@ -8,9 +8,6 @@ const {
 const API_BASE_URL = 'http://localhost:3000';
 const API_TOKEN = 'pat_abcdefghijklmnopqrstuvwxyz0123456789';
 
-const INTEREST_RATE = 7.0;
-const ASSESSMENT_RATE_BUFFER = 3.0;
-
 const calculator = new BorrowingPowerCalculator(
     API_BASE_URL,
     API_TOKEN
@@ -27,23 +24,19 @@ function runConsoleMode() {
             rl.question("Declared Monthly Expenses: $", (expenses) => {
                 rl.question("Total Credit Card Limits: $", (creditLimits) => {
 
-                    // Banks assess loans using base rate + buffer for safety
-                    const assessmentRate = INTEREST_RATE + ASSESSMENT_RATE_BUFFER;
-
                     // Change #6
                     //Performing the borrowing power calculation using the new class 
                     calculator.calculateBorrowingPower(
                         parseFloat(income),
                         parseInt(dependents),
                         parseFloat(expenses),
-                        parseFloat(creditLimits),
-                        assessmentRate
+                        parseFloat(creditLimits)
                     )
                         // change #7
                         .then(result => {
 
                             console.log("\n--- Calculation Summary ---");
-                            console.log(`Maximum Borrowing Power at ${INTEREST_RATE}%: $${result.maxLoanAmount.toLocaleString()}`);
+                            console.log(`Maximum Borrowing Power at ${result.interestRate}%: $${result.maxLoanAmount.toLocaleString()}`);
                             console.log(`Assumed Monthly Mortgage Repayment: $${result.monthlyRepayment.toLocaleString()} over 30 years`);
 
                             rl.close();
@@ -62,7 +55,15 @@ function runConsoleMode() {
 runConsoleMode();
 
 /*
+Change 1
 This is where i tried to implement seperation of concerns 
 i wanted to make the logic and user interface to be seperate to make sure the code is more maintainable and testable 
 hence the new file by the name of intex.js for the user interaction
+
+Change 2
+I felt the seperation of concerns wansnt done well enough since some of the business/evaluation logic was being done in index.js
+
+I felt, calculating the assessment rate(interest rate + assessment rate buffer) would better fit in borrowing Calculator so that is what I implemented next
+
+I moved the calculation to the borrowing Calculator. One thing that showed up as a problem was that index.js no longer knew the interest rate that was being implemented. So, the 
 */
